@@ -55,6 +55,13 @@ server <- function(input, output, session) {
       pitcher = input$pitcher
       b <- b %>% filter(grepl(tolower(pitcher), tolower(Pitcher)))
     }
+    # # Optional: filter by batter
+    if (!is.null(input$batter) && input$batter != "") {
+      batter = input$batter
+      b <- b %>% filter(grepl(tolower(batter), tolower(Batter)))
+    }
+    
+    
     # # Optional: filter by cast member
     # if (!is.null(input$cast) && input$cast != "") {
     #   cast <- paste0("%", input$cast, "%")
@@ -134,7 +141,8 @@ ui <- fluidPage(
                          c("All", "ChangeUp", "Curveball", "Cutter", "Fastball", "FourSeamFastBall",
                            "Slider", "TwoSeamFastBall")
              ),
-             textInput("pitcher", "Pitcher name contains (e.g., 'matt', 'ager, matt')")
+             textInput("pitcher", "Pitcher name contains (e.g., 'matt', 'ager, matt')"),
+             textInput("batter", "Batter name contains (e.g. 'joe', 'yorke, joe')")
            ),
            wellPanel(
              selectInput("xvar", "X-axis variable", axis_vars, selected = "RelSpeed"),

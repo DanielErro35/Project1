@@ -1,10 +1,10 @@
 
 library(shiny)
+library(shinythemes)
 library(here)
 library(tidyverse)
 library(stringr)
 library(bslib)
-
 library(ggvis)
 library(dplyr)
 if (FALSE) {
@@ -28,14 +28,14 @@ axis_vars <- c(
 
 server <- function(input, output, session) {
   
-  # Filter the movies, returning a data frame
+  #setting temporary variables
   baseball <- reactive({
-    # Due to dplyr issue #318, we need temp variables for input values
     relspeed <- input$relspeed
     spinrate <- input$spinrate
     mininning <- input$inning[1]
     maxinning <- input$inning[2]
     
+    #adding option to change which dataset
     if (input$game == "Game 1") {
       baseball_data <- baseball_22
     }else if (input$game == "Game 2") {
@@ -69,11 +69,26 @@ server <- function(input, output, session) {
       batter = input$batter
       b <- b %>% filter(grepl(tolower(batter), tolower(Batter)))
     }
+    # Optional: Filter by pitcher's team
+    if ("Cal Poly" %in% input$pitcher_team) {
+      b <- b %>% filter(PitcherTeam == "CAL_MUS") # Filter by CalPoly team
+    }
+    if ("UCSB" %in% input$pitcher_team) {
+      b <- b %>% filter(PitcherTeam == "SAN_GAU") # Filter by UCSB team
+    }
+    # Optional: Filter by batter's team
+    if ("Cal Poly" %in% input$batter_team) {
+      b <- b %>% filter(BatterTeam == "CAL_MUS") # Filter by CalPoly team
+    }
+    if ("UCSB" %in% input$batter_team) {
+      b <- b %>% filter(BatterTeam == "SAN_GAU") # Filter by UCSB team
+    }
     
+    
+    #convert to data frame
     b <- as.data.frame(b)
     
-    # Add column which says whether the movie won any Oscars
-    # Be a little careful in case we have a zero-row data frame
+    #identifying team names
     b$team <- character(nrow(b))
     b$team[b$PitcherTeam == "CAL_MUS"] <- "Cal Poly"
     b$team[b$PitcherTeam == "SAN_GAU"] <- "UCSB"
@@ -99,12 +114,11 @@ server <- function(input, output, session) {
     # Lables for axes
     xvar_name <- names(axis_vars)[axis_vars == input$xvar]
     yvar_name <- names(axis_vars)[axis_vars == input$yvar]
-    
-    # Normally we could do something like props(x = ~BoxOffice, y = ~Reviews),
-    # but since the inputs are strings, we need to do a little more work.
+  
     xvar <- prop("x", as.symbol(input$xvar))
     yvar <- prop("y", as.symbol(input$yvar))
     
+    #creating plot
     baseball %>%
       ggvis(x = xvar, y = yvar) %>%
       layer_points(size := 50, size.hover := 200,
@@ -126,7 +140,8 @@ server <- function(input, output, session) {
 
 
 
-ui <- fluidPage(theme = bs_theme(preset = "united"),
+ui <- fluidPage(
+  theme = shinytheme("spacelab"),
   titlePanel("CalPoly vs UCSB baseball pitches explorer"),
   fluidRow(
     column(3,
@@ -135,18 +150,31 @@ ui <- fluidPage(theme = bs_theme(preset = "united"),
              selectInput("game", "Game",
                          c("Game 1", "Game 2", "Game 3")
              ),
+             #creating inning slider
              sliderInput("inning", "Inning", 1, 12, value = c(1, 9),
                          sep = ""),
+             #creating release speed slider
              sliderInput("relspeed", "Minimum speed of ball",
                          70, 90, 80, step = 2),
+             #creating spin rate slider
              sliderInput("spinrate", "Minimum spin rate of ball", 1100, 2700, 1800, step = 100),
+             #creating pitch type options
              selectInput("pitchtype", "Pitch Type",
                          c("All", "ChangeUp", "Curveball", "Cutter", "Fastball", "FourSeamFastBall",
                            "Slider", "TwoSeamFastBall")
              ),
+             #choose pitcher's name
              textInput("pitcher", "Pitcher name contains (e.g., 'matt', 'ager, matt')"),
-             textInput("batter", "Batter name contains (e.g. 'joe', 'yorke, joe')")
+             #choose batter's name
+             textInput("batter", "Batter name contains (e.g. 'joe', 'yorke, joe')"),
+             checkboxGroupInput("pitcher_team", "Pitcher's Team", 
+                                choices = c("Cal Poly", "UCSB"), 
+                                selected = "None"),
+             checkboxGroupInput("batter_team", "Batter's Team", 
+                                choices = c("Cal Poly", "UCSB"), 
+                                selected = "None")
            ),
+           #setting default plot options
            wellPanel(
              selectInput("xvar", "X-axis variable", axis_vars, selected = "RelSpeed"),
              selectInput("yvar", "Y-axis variable", axis_vars, selected = "SpinRate"),
@@ -167,3 +195,5 @@ ui <- fluidPage(theme = bs_theme(preset = "united"),
 
 shinyApp(ui = ui, server = server)
 
+#sources:
+#https://shiny.posit.co/r/gallery/interactive-visualizations/movie-explorer/

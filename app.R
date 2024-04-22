@@ -2,6 +2,7 @@
 library(shiny)
 library(here)
 library(tidyverse)
+library(stringr)
 
 library(ggvis)
 library(dplyr)
@@ -16,8 +17,11 @@ baseball_23 <- read_csv(here("data", "3-23-24_CalPoly_UCSB.csv"))
 baseball_24 <- read_csv(here("data", "3-24-24_CalPoly_UCSB.csv"))
 
 axis_vars <- c(
-  "Relative Speed" = "RelSpeed",
-  "Spin Rate" = "SpinRate"
+  "Release Speed" = "RelSpeed",
+  "Spin Rate" = "SpinRate",
+  "Extension" = "Extension",
+  "Vertical Break" = "InducedVertBreak",
+  "Horizontal Break" = "HorzBreak"
 )
 
 
@@ -55,12 +59,11 @@ server <- function(input, output, session) {
       pitcher = input$pitcher
       b <- b %>% filter(grepl(tolower(pitcher), tolower(Pitcher)))
     }
-    # # Optional: filter by cast member
-    # if (!is.null(input$cast) && input$cast != "") {
-    #   cast <- paste0("%", input$cast, "%")
-    #   m <- m %>% filter(Cast %like% cast)
-    # }
-    
+    # # Optional: filter by batter
+    if (!is.null(input$batter) && input$batter != "") {
+      batter = input$batter
+      b <- b %>% filter(grepl(tolower(batter), tolower(Batter)))
+    }
     
     b <- as.data.frame(b)
     
@@ -129,12 +132,13 @@ ui <- fluidPage(
              ),
              sliderInput("relspeed", "Minimum speed of ball",
                          70, 90, 80, step = 2),
-             sliderInput("spinrate", "Minimum spin rate of ball", 1100, 2600, 1800, step = 100),
+             sliderInput("spinrate", "Minimum spin rate of ball", 1100, 2700, 1800, step = 100),
              selectInput("pitchtype", "Pitch Type",
                          c("All", "ChangeUp", "Curveball", "Cutter", "Fastball", "FourSeamFastBall",
                            "Slider", "TwoSeamFastBall")
              ),
-             textInput("pitcher", "Pitcher name contains (e.g., 'matt', 'ager, matt')")
+             textInput("pitcher", "Pitcher name contains (e.g., 'matt', 'ager, matt')"),
+             textInput("batter", "Batter name contains (e.g. 'joe', 'yorke, joe')")
            ),
            wellPanel(
              selectInput("xvar", "X-axis variable", axis_vars, selected = "RelSpeed"),
@@ -148,6 +152,11 @@ ui <- fluidPage(
                   textOutput("n_baseball")
              )
            )
+    ),
+    page_sidebar(
+      theme = bs_theme(preset = "united"
+      )
+      
     )
   )
 )

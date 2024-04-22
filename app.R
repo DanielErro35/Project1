@@ -16,7 +16,7 @@ baseball_23 <- read_csv(here("data", "3-23-24_CalPoly_UCSB.csv"))
 baseball_24 <- read_csv(here("data", "3-24-24_CalPoly_UCSB.csv"))
 
 axis_vars <- c(
-  "Relative Speed" = "RelSpeed",
+  "Release Speed" = "RelSpeed",
   "Spin Rate" = "SpinRate"
 )
 
@@ -156,6 +156,11 @@ ui <- fluidPage(
                   textOutput("n_baseball")
              )
            )
+    ),
+    page_sidebar(
+      theme = bs_theme(preset = "united"
+      )
+      
     )
   )
 )

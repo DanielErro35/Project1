@@ -3,6 +3,7 @@ library(shiny)
 library(here)
 library(tidyverse)
 library(stringr)
+library(bslib)
 
 library(ggvis)
 library(dplyr)
@@ -32,6 +33,8 @@ server <- function(input, output, session) {
     # Due to dplyr issue #318, we need temp variables for input values
     relspeed <- input$relspeed
     spinrate <- input$spinrate
+    mininning <- input$inning[1]
+    maxinning <- input$inning[2]
     
     if (input$game == "Game 1") {
       baseball_data <- baseball_22
@@ -45,7 +48,9 @@ server <- function(input, output, session) {
     b <- baseball_data %>%
       filter(
         RelSpeed >= relspeed,
-        SpinRate >= spinrate
+        SpinRate >= spinrate,
+        Inning >= mininning,
+        Inning <= maxinning
       ) %>%
       arrange(RelSpeed)
     
@@ -85,7 +90,7 @@ server <- function(input, output, session) {
     bb <- baseball_22[baseball_22$PitchNo == x$PitchNo, ]
 
     paste0("<b>", bb$Pitcher, "</b><br>",
-           bb$TaggedPitchType, "<br>"
+           bb$TaggedPitchType, "<br>", "Batter: ", bb$Batter
     )
   }
   
@@ -121,7 +126,7 @@ server <- function(input, output, session) {
 
 
 
-ui <- fluidPage(
+ui <- fluidPage(theme = bs_theme(preset = "united"),
   titlePanel("CalPoly vs UCSB baseball pitches explorer"),
   fluidRow(
     column(3,
@@ -130,6 +135,8 @@ ui <- fluidPage(
              selectInput("game", "Game",
                          c("Game 1", "Game 2", "Game 3")
              ),
+             sliderInput("inning", "Inning", 1, 12, value = c(1, 9),
+                         sep = ""),
              sliderInput("relspeed", "Minimum speed of ball",
                          70, 90, 80, step = 2),
              sliderInput("spinrate", "Minimum spin rate of ball", 1100, 2700, 1800, step = 100),
@@ -152,13 +159,9 @@ ui <- fluidPage(
                   textOutput("n_baseball")
              )
            )
-    ),
-    page_sidebar(
-      theme = bs_theme(preset = "united"
-      )
+    )
       
     )
-  )
 )
 
 

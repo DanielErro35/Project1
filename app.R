@@ -68,6 +68,21 @@ server <- function(input, output, session) {
       batter = input$batter
       b <- b %>% filter(grepl(tolower(batter), tolower(Batter)))
     }
+    # Optional: Filter by pitcher's team
+    if ("Cal Poly" %in% input$pitcher_team) {
+      b <- b %>% filter(PitcherTeam == "CAL_MUS") # Filter by CalPoly team
+    }
+    if ("UCSB" %in% input$pitcher_team) {
+      b <- b %>% filter(PitcherTeam == "SAN_GAU") # Filter by UCSB team
+    }
+    # Optional: Filter by batter's team
+    if ("Cal Poly" %in% input$batter_team) {
+      b <- b %>% filter(BatterTeam == "CAL_MUS") # Filter by CalPoly team
+    }
+    if ("UCSB" %in% input$batter_team) {
+      b <- b %>% filter(BatterTeam == "SAN_GAU") # Filter by UCSB team
+    }
+    
     
     #convert to data frame
     b <- as.data.frame(b)
@@ -124,7 +139,7 @@ server <- function(input, output, session) {
 
 
 
-ui <- fluidPage(theme = bs_theme(preset = "united"),
+ui <- fluidPage(theme = bs_theme(preset = "cosmo"),
   titlePanel("CalPoly vs UCSB baseball pitches explorer"),
   fluidRow(
     column(3,
@@ -149,7 +164,13 @@ ui <- fluidPage(theme = bs_theme(preset = "united"),
              #choose pitcher's name
              textInput("pitcher", "Pitcher name contains (e.g., 'matt', 'ager, matt')"),
              #choose batter's name
-             textInput("batter", "Batter name contains (e.g. 'joe', 'yorke, joe')")
+             textInput("batter", "Batter name contains (e.g. 'joe', 'yorke, joe')"),
+             checkboxGroupInput("pitcher_team", "Pitcher's Team", 
+                                choices = c("Cal Poly", "UCSB"), 
+                                selected = "None"),
+             checkboxGroupInput("batter_team", "Batter's Team", 
+                                choices = c("Cal Poly", "UCSB"), 
+                                selected = "None")
            ),
            #setting default plot options
            wellPanel(
@@ -172,3 +193,5 @@ ui <- fluidPage(theme = bs_theme(preset = "united"),
 
 shinyApp(ui = ui, server = server)
 
+#sources:
+#https://shiny.posit.co/r/gallery/interactive-visualizations/movie-explorer/

@@ -2,6 +2,7 @@
 library(shiny)
 library(here)
 library(tidyverse)
+library(stringr)
 
 library(ggvis)
 library(dplyr)
@@ -17,7 +18,10 @@ baseball_24 <- read_csv(here("data", "3-24-24_CalPoly_UCSB.csv"))
 
 axis_vars <- c(
   "Release Speed" = "RelSpeed",
-  "Spin Rate" = "SpinRate"
+  "Spin Rate" = "SpinRate",
+  "Extension" = "Extension",
+  "Vertical Break" = "InducedVertBreak",
+  "Horizontal Break" = "HorzBreak"
 )
 
 
@@ -60,14 +64,6 @@ server <- function(input, output, session) {
       batter = input$batter
       b <- b %>% filter(grepl(tolower(batter), tolower(Batter)))
     }
-    
-    
-    # # Optional: filter by cast member
-    # if (!is.null(input$cast) && input$cast != "") {
-    #   cast <- paste0("%", input$cast, "%")
-    #   m <- m %>% filter(Cast %like% cast)
-    # }
-    
     
     b <- as.data.frame(b)
     
@@ -136,7 +132,7 @@ ui <- fluidPage(
              ),
              sliderInput("relspeed", "Minimum speed of ball",
                          70, 90, 80, step = 2),
-             sliderInput("spinrate", "Minimum spin rate of ball", 1100, 2600, 1800, step = 100),
+             sliderInput("spinrate", "Minimum spin rate of ball", 1100, 2700, 1800, step = 100),
              selectInput("pitchtype", "Pitch Type",
                          c("All", "ChangeUp", "Curveball", "Cutter", "Fastball", "FourSeamFastBall",
                            "Slider", "TwoSeamFastBall")

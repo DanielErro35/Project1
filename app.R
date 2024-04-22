@@ -1,5 +1,6 @@
 
 library(shiny)
+library(shinythemes)
 library(here)
 library(tidyverse)
 library(stringr)
@@ -139,7 +140,8 @@ server <- function(input, output, session) {
 
 
 
-ui <- fluidPage(theme = bs_theme(preset = "cosmo"),
+ui <- fluidPage(
+  theme = shinytheme("spacelab"),
   titlePanel("CalPoly vs UCSB baseball pitches explorer"),
   fluidRow(
     column(3,

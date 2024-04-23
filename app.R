@@ -177,7 +177,7 @@ ui <- fluidPage(
            #setting default plot options
            wellPanel(
              selectInput("xvar", "X-axis variable", axis_vars, selected = "RelSpeed"),
-             selectInput("yvar", "Y-axis variable", axis_vars, selected = "SpinRate"),
+             selectInput("yvar", "Y-axis variable", axis_vars, selected = "SpinRate")
            )
     ),
     column(9,
@@ -186,8 +186,20 @@ ui <- fluidPage(
              span("Number of pitches selected:",
                   textOutput("n_baseball")
              )
+           ),
+           wellPanel(
+             span("Release Speed: The velocity of the pitch (MPH)")),
+           wellPanel(
+             span("Spin Rate: The rotation speed of the pitch (RPM)")),
+           wellPanel(
+             span("Extension: The distance of the pitcher's release point from the pitching rubber (ft)")),
+           wellPanel(
+             span("Vertical Break: The induced vertical movement of the pitch (in)")),
+           wellPanel(
+             span("Horizontal Break: The horizontal movement of the pitch (in)"),
            )
     )
+    
       
     )
 )
